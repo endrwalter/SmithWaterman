@@ -18,19 +18,11 @@ mismatch = -1
 gap      =  1
 
 # util variables
-seq_c     = None
-seq_r     = None
-bool_save = None
-bool_display_mat = None
-bool_override_tb = None
-
-
-
 
 def main():
 	
 	
-	bool_save, bool_display_mat, min_length, min_score = parseCmdLine()
+	seq_r, seq_c, bool_override_tb, match, mismatch, gap, bool_save, bool_display_mat, min_length, min_score = parseCmdLine()
 
 	print(" Options ")
 	print("------ ")
@@ -55,7 +47,7 @@ def main():
 	print(" Generating the Scoring Matrix..")
 	print("")
 
-	score_matrix, max_score, max_pos  = generateScoreMatrix()
+	score_matrix, max_score, max_pos  = generateScoreMatrix(seq_r,seq_c,match,mismatch,gap)
 
 	if (bool_display_mat):
 		print(" Score Matrix:")
@@ -88,7 +80,7 @@ def main():
 		if trace:
 			all_traces.append(trace)
 			trace = []
-			max_pos, max_score = find_new_pos(all_traces,score_matrix)
+			max_pos, max_score = find_new_pos(all_traces,score_matrix,bool_override_tb)
 			all_scores.append(max_score)
 
 		else:
@@ -100,7 +92,7 @@ def main():
 	real alignments with the characters:
 	main_list = [["ACTAG","A-TAC"],["ACGT","-ACG"],...["",""],..]
 	'''
-	main_list = getAlignments(all_traces)
+	main_list = getAlignments(all_traces,seq_r,seq_c)
 
 	if (main_list == []):
 		print("No alignments found, please insert another sequence")
@@ -112,7 +104,7 @@ def main():
 
 	'''Formatted print to file result.txt '''
 	if bool_save:
-		export_res(main_list,all_scores, min_length, min_score)
+		export_res(main_list,all_scores, min_length, min_score,seq_r,seq_c)
 		print(" Exporting results to 'result.txt'..")
 	else:
 		print(" Results have not been exported.")
@@ -127,12 +119,6 @@ def parseCmdLine():
     input by ensuring it does not contain invalid characters (i.e. characters
     that aren't the bases A, C, G, or T).
     '''
-	global seq_r 
-	global seq_c
-	global match
-	global mismatch
-	global gap
-	global bool_override_tb
 
 
 	parser = argparse.ArgumentParser(description="Smith Waterman Algorithm Implementation. This algorithm works only with nucleotide sequences. Only A,G,C,T characters are allowed.")
@@ -177,18 +163,18 @@ def parseCmdLine():
 		sys.exit()
 
 	if any(c not in 'AGCT' for c in seq_c):  
-		print(' Wrong character, check the help')
+		print(' Wrong character in sequence 1, see the help with -h.')
 		sys.exit()
 	
 
 	if any(c not in 'AGCT' for c in seq_r):  
-		print(' Wrong character, check the help')
+		print(' Wrong character in sequence 2, see the help with -h.')
 		sys.exit()
 
-	return bool_save, bool_display_mat, min_length, min_score
+	return seq_r, seq_c, bool_override_tb, match, mismatch, gap, bool_save, bool_display_mat, min_length, min_score
 	
 
-def generateScoreMatrix():
+def generateScoreMatrix(seq_r,seq_c,match,mismatch,gap):
 
 	'''Fill the scoring matrix iteratively using the schema (see getMaxScore):
 
@@ -196,7 +182,7 @@ def generateScoreMatrix():
 	#cols = number of char of seq_c1
 	#rows = number of char of seq_r2
 	
-	cols, rows, score_matrix = initScoreMatrix()
+	cols, rows, score_matrix = initScoreMatrix(seq_r,seq_c)
 
 
 	max_score = 0
@@ -204,7 +190,7 @@ def generateScoreMatrix():
 	for i in range(1,rows):
 		for j in range(1,cols):
 			
-			score = getMaxScore(score_matrix,i,j)
+			score = getMaxScore(score_matrix,i,j,match,mismatch,gap,seq_r,seq_c)
 			score_matrix[i][j]=score
 
 			if (score>max_score):
@@ -215,7 +201,7 @@ def generateScoreMatrix():
 	return score_matrix, max_score, max_pos
 
 
-def initScoreMatrix():
+def initScoreMatrix(seq_r,seq_c):
 	'''function that initialize the score_matrix '''
 
 	'''The scoring matrix has dimension [1+length_seqa][1+length_seqb]
@@ -232,7 +218,7 @@ def initScoreMatrix():
 	return cols, rows , score_matrix
 
 
-def getMaxScore(score_matrix, row, col):
+def getMaxScore(score_matrix, row, col,match,mismatch,gap,seq_r,seq_c):
 	''' Function used to fill the score_matrix it checks which is the
 	best score to insert in a certain cell of the matrix
 	
@@ -315,7 +301,7 @@ def traceBack(score_matrix,max_pos,trace):
 		return traceBack(score_matrix,max_pos,trace)
 
 
-def find_new_pos(all_traces, score_matrix):
+def find_new_pos(all_traces, score_matrix, bool_override_tb):
 
 	'''given the score_matrix find the new maximum 
 	score omitting the ones that we have already found'''
@@ -361,7 +347,7 @@ def find_new_pos(all_traces, score_matrix):
 	return new_pos, new_max
 
 
-def getAlignments(all_traces):
+def getAlignments(all_traces,seq_r,seq_c):
 	'''
 	The main idea here is that, if both the indexes change, then there's
 	a match or a mismatch.
@@ -442,7 +428,7 @@ def printInfo(alignment, score_):
 	print("   ")
 
 
-def export_res(main_list,all_scores, min_length, min_score):
+def export_res(main_list,all_scores, min_length, min_score,seq_r,seq_c):
 
 	original_stdout = sys.stdout
 	sys.stdout = open('result.txt', 'w')
