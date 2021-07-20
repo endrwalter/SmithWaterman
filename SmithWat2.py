@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 
-'''A Python implementation of the Smith-Waterman algorithm for local alignment
-of nucleotide sequences.
+'''Python implementation of Smith-Waterman algorithm for local alignment
 '''
 
-import argparse
+import argparse    				#for creating a decent user-friendly menu
 import os
 import sys
-from copy import copy, deepcopy
-from glob import iglob
-import re 
+from copy import copy, deepcopy #used to preserve the score_matrix during the traceback procedure
+import re                       #regex
 
 
 # simple scoring scheme 
@@ -17,12 +15,11 @@ match    =  3
 mismatch = -1
 gap      =  1
 
-# util variables
 
 def main():
 	
 	
-	seq_r, seq_c, bool_override_tb, match, mismatch, gap, bool_save, bool_display_mat, min_length, min_score = parseCmdLine()
+	seq_r, seq_c, bool_override_tb, match, mismatch, gap, bool_save, bool_display_mat, min_length, min_score, bool_min_gap = parseCmdLine()
 
 	print(" Options ")
 	print("------ ")
@@ -102,9 +99,9 @@ def main():
 	print(" Best alignment")
 	printInfo(main_list[0],all_scores[0])
 
-	'''Formatted print to file result.txt '''
+	'''Formatted print to result.txt '''
 	if bool_save:
-		export_res(main_list,all_scores, min_length, min_score,seq_r,seq_c)
+		export_res(main_list,all_scores, min_length, min_score,bool_min_gap,seq_r,seq_c)
 		print(" Exporting results to 'result.txt'..")
 	else:
 		print(" Results have not been exported.")
@@ -131,8 +128,9 @@ def parseCmdLine():
 	parser.add_argument("-m", "--match" ,	 type = int, choices=[0,1,2,3,4,5,6,7,8,9], 		default = 3 ,help="Optional. set up the match score. (default = 3) ")
 	parser.add_argument("-s", "--mismatch" , type = int, choices=[-9,-8,-7,-6,-5,-4,-3,-2,-1,0], default =-1, help="Optional. set up the mismatch score. (default = -1) ")
 	parser.add_argument("-g", "--gap" ,		 type = int, choices=[0,1,2,3,4,5,6,7,8,9], 		default = 1, help="Optional. set up the gap score. (default = 1) ")
-	parser.add_argument("-ml", "--minimum-length", type = int, default = 1, help="Optional. Specify only if the '-f' option is used. If -ml is specified, only the alignments with length > ml will be saved and exported to the file result.txt")
-	parser.add_argument("-ms", "--minimum-score", type=int, default = 0, help="Optional. Specify onli if the '-f' option is used. If -ms is specified, only the alignments with score > ms will be saved and exported to the file result.txt")
+	parser.add_argument("-ml", "--minimum-length", type = int, default = 1, help="Optional. Specify only if the '-f' option is used. If -ml is specified, only the alignments with (length > ml) will be saved and exported to the file result.txt")
+	parser.add_argument("-ms", "--minimum-score", type=int, default = 0, help="Optional. Specify only if the '-f' option is used. If -ms is specified, only the alignments with (score > ms) will be saved and exported to the file result.txt")
+	parser.add_argument("-mg", "--seq-with-min-number-of-gaps", action="store_true", help="Optional. If this flag is used, only the alignments (among all) with the minimum number of gaps are selected and saved to result.txt (It works if -f flag is used, you will find the result in the result.txt file)")
 	
 
 	'''
@@ -156,6 +154,7 @@ def parseCmdLine():
 	bool_override_tb = args.override_in_traceback
 	min_length = args.minimum_length
 	min_score = args.minimum_score
+	bool_min_gap = args.seq_with_min_number_of_gaps
 
 	#check string validity
 	if(len(seq_c) <= 1 or len(seq_r) <= 1):
@@ -171,7 +170,7 @@ def parseCmdLine():
 		print(' Wrong character in sequence 2, see the help with -h.')
 		sys.exit()
 
-	return seq_r, seq_c, bool_override_tb, match, mismatch, gap, bool_save, bool_display_mat, min_length, min_score
+	return seq_r, seq_c, bool_override_tb, match, mismatch, gap, bool_save, bool_display_mat, min_length, min_score, bool_min_gap
 	
 
 def generateScoreMatrix(seq_r,seq_c,match,mismatch,gap):
@@ -428,7 +427,14 @@ def printInfo(alignment, score_):
 	print("   ")
 
 
-def export_res(main_list,all_scores, min_length, min_score,seq_r,seq_c):
+def export_res(main_list,all_scores, min_length, min_score,bool_min_gap,seq_r,seq_c):
+
+	mingap = len(seq_r)
+
+	if bool_min_gap: #if specified by the user, I save only the alignment which have the minimum gap. (it can be = 0)
+		for alignment in main_list:
+			mingap = alignment[0].count('-')+alignment[1].count('-') if (alignment[0].count('-')+alignment[1].count('-')) < mingap else mingap
+
 
 	original_stdout = sys.stdout
 	sys.stdout = open('result.txt', 'w')
@@ -439,19 +445,18 @@ def export_res(main_list,all_scores, min_length, min_score,seq_r,seq_c):
 		if (len(alignment[1]) <= min_length):	#save only alignment which has a length grater than 'ml' (specified by user)
 			i=i+1
 			continue
-		print("Alignment number "+str(i+1))
-		printInfo(alignment, all_scores[i])
+		if (bool_min_gap):
+			if (alignment[0].count('-')+alignment[1].count('-') == mingap):
+				print("Alignment number "+str(i+1))
+				printInfo(alignment, all_scores[i])
+		else:
+			print("Alignment number "+str(i+1))
+			printInfo(alignment, all_scores[i])
 		i=i+1
 
 	sys.stdout = original_stdout
 
 
-''' 
-return all the possible
-local alignments, ordered by decreasing score, with length > 5, score > 4
-and gaps > 0. Gaps are included in the calculation of alignment
-length.
-'''
 
 if __name__== '__main__':
 	sys.exit(main())
