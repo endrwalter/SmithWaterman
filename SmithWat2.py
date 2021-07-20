@@ -92,7 +92,7 @@ def main():
 	main_list = getAlignments(all_traces,seq_r,seq_c)
 
 	if (main_list == []):
-		print("No alignments found, please insert another sequence")
+		print("No alignments found, please change the sequences")
 		sys.exit()
 
 	'''Print in terminal info of the best alignment'''
