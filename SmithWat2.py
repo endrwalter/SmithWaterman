@@ -139,9 +139,9 @@ def parseCmdLine():
 	parser.add_argument("-f", "--save-to-file", action="store_true", help="Export all the alignments in a text file named 'result.txt'. Alignments are reported in an ordered way with respect to the score. Note that if result.txt already exists it will be erased.")
 	parser.add_argument("-d", "--display-scoring-matrix", action="store_true", help="Display the scoring matrix calculated by the algorithm using the scoring schema")
 	parser.add_argument("-o", "--override-in-traceback", action="store_true", help="Allow overlaps in trace-back paths, by default they are not allowed.")
-	parser.add_argument("-m", "--match" ,	 type = int, choices=[0,1,2,3,4,5,6], 		default = 3 ,help="Optional. set up the match score. (default = 3) ")
-	parser.add_argument("-s", "--mismatch" , type = int, choices=[-6,-5,-4,-3,-2,-1,0], default =-1, help="Optional. set up the mismatch score. (default = -1) ")
-	parser.add_argument("-g", "--gap" ,		 type = int, choices=[0,1,2,3,4,5,6], 		default = 1, help="Optional. set up the gap score. (default = 1) ")
+	parser.add_argument("-m", "--match" ,	 type = int, choices=[0,1,2,3,4,5,6,7,8,9], 		default = 3 ,help="Optional. set up the match score. (default = 3) ")
+	parser.add_argument("-s", "--mismatch" , type = int, choices=[-9,-8,-7,-6,-5,-4,-3,-2,-1,0], default =-1, help="Optional. set up the mismatch score. (default = -1) ")
+	parser.add_argument("-g", "--gap" ,		 type = int, choices=[0,1,2,3,4,5,6,7,8,9], 		default = 1, help="Optional. set up the gap score. (default = 1) ")
 
 
 
