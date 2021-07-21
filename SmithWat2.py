@@ -116,14 +116,13 @@ def main():
 def parseCmdLine():
 	
 	'''Parse the command line arguments.
-    Create a help menu, take input from the command line, and validate the
-    input by ensuring it does not contain invalid characters (i.e. characters
-    that aren't the bases A, C, G, or T).
+    Create a help menu, take input from the command line, and validate the input
     '''
 
 
 	parser = argparse.ArgumentParser(
-			description=" ===================================== Smith Waterman Algorithm Implementation ==============================================\n"
+			description=
+			" ===================================== Smith Waterman Algorithm Implementation ==============================================\n"
 			" This algorithm works only with nucleotide sequences. Only A,G,C,T characters are allowed.\n"
 			" It directly returns on terminal the best alignment between the two inserted sequences.\n"
 			" Optionally it can save on a text file all the other alignments between the two sequences. (see the options below)\n"
@@ -142,6 +141,8 @@ def parseCmdLine():
 			"		+ 0 					   \n "
 			"    Where W() is the gap score, and H is the scoring matrix that the procedure is filling up\n"
 			"  - Once the score matrix is created, the traceback procedure is launched iteratively to find all the alignments\n"
+			"  - This procedure launched in standard mode (without flags) returns the best alignment with the score, the length,\n"
+			"    the number of gaps, the number of mismatches and the number of matches related to the alignment.\n"
 			" ============================================================================================================================",
 			formatter_class=RawTextHelpFormatter)
 
@@ -203,14 +204,12 @@ def parseCmdLine():
 
 def generateScoreMatrix(seq_r,seq_c,match,mismatch,gap):
 
-	'''Fill the scoring matrix iteratively using the schema (see getMaxScore):
-
+	'''Fill the scoring matrix iteratively (see getMaxScore)
+	cols = number of char of seq_c1
+	rows = number of char of seq_r2
 	'''
-	#cols = number of char of seq_c1
-	#rows = number of char of seq_r2
 	
 	cols, rows, score_matrix = initScoreMatrix(seq_r,seq_c)
-
 
 	max_score = 0
 	max_pos = 0
@@ -264,11 +263,11 @@ def getMaxScore(score_matrix, row, col,match,mismatch,gap,seq_r,seq_c):
 	supp_oriz = []
 	supp_vert = []
 
-	
+	#here i iterate from m = 1 until m = col-1.
 	for m in range(1,col):
-		supp_oriz.append(score_matrix[row][m]-gap*m)
+		supp_oriz.append(score_matrix[row][m]-gap*(col-m))
 	for n in range(1,row):
-		supp_vert.append(score_matrix[n][col]-gap*n)
+		supp_vert.append(score_matrix[n][col]-gap*(row-n))
 
 	similarity =  match if seq_c[col-1] == seq_r[row-1] else mismatch
 
@@ -277,6 +276,11 @@ def getMaxScore(score_matrix, row, col,match,mismatch,gap,seq_r,seq_c):
 	left = 0 if supp_oriz == [] else max(supp_oriz)
 	up = 0 if supp_vert == [] else max(supp_vert)
 
+	#simpler scoring schema, here I don't check if there is a cell in all the row or in all the column, i simply check the first after the current cell.
+
+	#diag = score_matrix[row-1][col-1]+similarity
+	#left = score_matrix[row][col-1]-gap
+	#up = score_matrix[row-1][col]-gap
 
 	return max(diag,left,up,0)
 
