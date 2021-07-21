@@ -77,9 +77,10 @@ def main():
 
 	while max_pos:
 		trace.append(max_pos)
-		trace, max_pos = traceBack(score_matrix,max_pos, trace)
+		trace, max_pos = traceBack(score_matrix,max_pos, trace, gap)
 		if trace:
 			all_traces.append(trace)
+			print(trace)
 			trace = []
 			max_pos, max_score = find_new_pos(all_traces,score_matrix,bool_override_tb)
 			all_scores.append(max_score)
@@ -289,17 +290,16 @@ def getMaxScore(score_matrix, row, col,match,mismatch,gap,seq_r,seq_c):
 	left = 0 if supp_oriz == [] else max(supp_oriz)
 	up = 0 if supp_vert == [] else max(supp_vert)
 
-
 	#simpler scoring schema, here I don't check if there is a cell in all the row or in all the column, i simply check the first after the current cell.
-	'''
-	diag = score_matrix[row-1][col-1]+similarity
-	left = score_matrix[row][col-1]-gap
-	up = score_matrix[row-1][col]-gap
-	'''
+
+	#diag = score_matrix[row-1][col-1]+similarity
+	#left = score_matrix[row][col-1]-gap
+	#up = score_matrix[row-1][col]-gap
+
 	return max(diag,left,up,0)
 
 
-def traceBack(score_matrix,max_pos,trace,gap):
+def traceBack(score_matrix,max_pos,trace):
 
 	'''function that implements the traceback, it returns the 
 	alignment given a starting position given by max_pos
@@ -318,10 +318,11 @@ def traceBack(score_matrix,max_pos,trace,gap):
 	
 	i,j=max_pos
 		
+	#here I have to add the gap penality to move laterally or vertically??????
 
 	diag = score_matrix[i-1][j-1]
-	up = score_matrix[i-1][j]
-	left = score_matrix[i][j-1]
+	up = score_matrix[i-1][j] -gap
+	left = score_matrix[i][j-1] -gap
 	
 	
 	#select the best cell in the matrix for the current trace using the score_matrix
@@ -343,7 +344,7 @@ def traceBack(score_matrix,max_pos,trace,gap):
 		return trace, max_pos
 	else:
 		trace.append(max_pos)
-		return traceBack(score_matrix,max_pos,trace)
+		return traceBack(score_matrix,max_pos,trace, gap)
 
 
 def find_new_pos(all_traces, score_matrix, bool_override_tb):
