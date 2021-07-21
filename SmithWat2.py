@@ -11,10 +11,6 @@ from copy import copy, deepcopy #used to preserve the score_matrix during the tr
 import re                       #regex
 
 
-# simple scoring scheme 
-match    =  3
-mismatch = -1
-gap      =  1
 
 
 def main():
@@ -87,6 +83,7 @@ def main():
 
 		else:
 			max_pos = None
+
 
 
 
@@ -451,13 +448,13 @@ def printInfo(alignment, score_):
 	for i in range(len(sequence_a)):
 		if (sequence_a[i]==sequence_b[i]):
 			n_match+=1
-			visual_string+="|"
+			visual_string+="*"
 		elif (sequence_a[i] == "-" or sequence_b[i] == "-"):
 			n_gaps+=1
 			visual_string+=" "
 		else:
 			n_mismatch+=1
-			visual_string+=":"
+			visual_string+="|"
 
 	print("--------------------------")
 	print(" "+sequence_a)
@@ -494,10 +491,10 @@ def export_res(main_list,all_scores, min_length, min_score,bool_min_gap,seq_r,se
 			continue
 		if (bool_min_gap):
 			if (alignment[0].count('-')+alignment[1].count('-') == mingap):
-				print("Alignment number "+str(i+1))
+				print(" Alignment number "+str(i+1))
 				printInfo(alignment, all_scores[i])
 		else:
-			print("Alignment number "+str(i+1))
+			print(" Alignment number "+str(i+1))
 			printInfo(alignment, all_scores[i])
 		i=i+1
 
