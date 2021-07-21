@@ -3,7 +3,8 @@
 '''Python implementation of Smith-Waterman algorithm for local alignment
 '''
 
-import argparse    				#for creating a decent user-friendly menu
+import argparse    	
+from argparse import RawTextHelpFormatter			#for creating a decent user-friendly menu
 import os
 import sys
 from copy import copy, deepcopy #used to preserve the score_matrix during the traceback procedure
@@ -26,6 +27,9 @@ def main():
 	if (bool_display_mat) : print("+ Score matrix display")
 	if (bool_override_tb) : print("+ Allowed overlaps in backtrace procedure")
 	if (bool_save) : print("+ Export results to result.txt")
+	if (bool_min_gap) : print("+ Export only the alignments with the minimum number of gaps")
+	if min_length > 1 : print("+ Export only the alignments with length >= "+str(min_length))
+	if min_score > 0 : print("+ Export only the alignment with score >= "+str(min_score))
 	print("------ ")
 	print("")
 	print(" Analyzed Sequences ")
@@ -72,7 +76,6 @@ def main():
 
 
 	while max_pos:
-		print(str(max_pos))
 		trace.append(max_pos)
 		trace, max_pos = traceBack(score_matrix,max_pos, trace)
 		if trace:
@@ -119,11 +122,34 @@ def parseCmdLine():
     '''
 
 
-	parser = argparse.ArgumentParser(description="Smith Waterman Algorithm Implementation. This algorithm works only with nucleotide sequences. Only A,G,C,T characters are allowed.")
+	parser = argparse.ArgumentParser(
+			description=" ===================================== Smith Waterman Algorithm Implementation ==============================================\n"
+			" This algorithm works only with nucleotide sequences. Only A,G,C,T characters are allowed.\n"
+			" It directly returns on terminal the best alignment between the two inserted sequences.\n"
+			" Optionally it can save on a text file all the other alignments between the two sequences. (see the options below)\n"
+			" -----------------------\n"
+			" Technical Info : \n"
+			"  - This procedure implements a simple scoring schema, the user has the possibility to modify the values related to \n"
+			"  		+ match score\n"
+			"		+ mismatch score\n"
+			"		+ gap penalty\n"
+			"  - Gap Score : the gap score (W()) is calulated using a simple formula, it is directly proportional to the number of gaps : gap_penalty * n_gaps \n"
+			"  - This scoring schema is then used to build the scoring matrix, by using the flag -d the user can print it on the terminal.\n"
+			"  - Each cell of the scoring matrix is filled up with the max value between :\n"
+			"		+ H[i-1,j-1]+S(a[i],b[j])\n"
+			"		+ max {H[i,j-l]-W(l)}, l>=1\n "
+			"		+ max {H[i-k,j]-W(k)}, k>=1\n "
+			"		+ 0 					   \n "
+			"    Where W() is the gap score, and H is the scoring matrix that the procedure is filling up\n"
+			"  - Once the score matrix is created, the traceback procedure is launched iteratively to finding all the alignments\n"
+			" ============================================================================================================================",
+			formatter_class=RawTextHelpFormatter)
+
 
 	parser.add_argument("seq_c1", help=" Input sequence 1 (on the columns)")
 	parser.add_argument("seq_r2", help=" Input sequence 2 (on the rows)")
-	parser.add_argument("-f", "--save-to-file", action="store_true", help="Export all the alignments in a text file named 'result.txt'. Alignments are reported in an ordered way with respect to the score. Note that if result.txt already exists it will be overwritten. If this flag is used, other optional arguments can be specified, see below.")
+	parser.add_argument("-f", "--save-to-file", action="store_true", help="Export all the alignments in a text file named 'result.txt'. Alignments are reported in an ordered way with respect to the score.\n"
+					"Note that if result.txt already exists it will be overwritten. If this flag is used, other optional arguments can be specified, see below.")
 	parser.add_argument("-d", "--display-scoring-matrix", action="store_true", help="Display the scoring matrix calculated by the algorithm using the scoring schema")
 	parser.add_argument("-o", "--override-in-traceback", action="store_true", help="Allow overlaps in trace-back paths, by default they are not allowed.")
 	parser.add_argument("-m", "--match" ,	 type = int, choices=[0,1,2,3,4,5,6,7,8,9], 		default = 3 ,help="Optional. set up the match score. (default = 3) ")
@@ -131,7 +157,8 @@ def parseCmdLine():
 	parser.add_argument("-g", "--gap" ,		 type = int, choices=[0,1,2,3,4,5,6,7,8,9], 		default = 1, help="Optional. set up the gap score. (default = 1) ")
 	parser.add_argument("-ml", "--minimum-length", type = int, default = 1, help="Optional. Specify only if the '-f' option is used. If -ml is specified, only the alignments with (length > ml) will be saved and exported to the file result.txt")
 	parser.add_argument("-ms", "--minimum-score", type=int, default = 0, help="Optional. Specify only if the '-f' option is used. If -ms is specified, only the alignments with (score > ms) will be saved and exported to the file result.txt")
-	parser.add_argument("-mg", "--seq-with-min-number-of-gaps", action="store_true", help="Optional. If this flag is used, only the alignments (among all) with the minimum number of gaps are selected and saved to result.txt (It works if -f flag is used, you will find the result in the result.txt file)")
+	parser.add_argument("-mg", "--seq-with-min-number-of-gaps", action="store_true", help="Optional. If this flag is used, only the alignments (among all) with the minimum number of gaps are selected and saved to result.txt \n"
+						"It works if -f flag is used, you will find the result in the result.txt file")
 	
 
 	'''
@@ -292,7 +319,6 @@ def traceBack(score_matrix,max_pos,trace):
 		
 	#we discard a trace if it contains only one cell
 	#If I mymax==0 zero, then I am at the beginning of the alignment, I have to stop the recursion.
-	print(trace)
 	if mymax==0:
 		if len(trace) <= 1:
 			trace = None
@@ -442,9 +468,9 @@ def export_res(main_list,all_scores, min_length, min_score,bool_min_gap,seq_r,se
 	sys.stdout = open('result.txt', 'w')
 	i = 0
 	for alignment in main_list:
-		if (all_scores[i] <= min_score):	#save only the alignment which has a score greater than '-ms' (specified by user)
+		if (all_scores[i] < min_score):	#save only the alignment which has a score greater than '-ms' (specified by user)
 			break
-		if (len(alignment[1]) <= min_length):	#save only alignment which has a length grater than 'ml' (specified by user)
+		if (len(alignment[1]) < min_length):	#save only alignment which has a length grater than 'ml' (specified by user)
 			i=i+1
 			continue
 		if (bool_min_gap):
