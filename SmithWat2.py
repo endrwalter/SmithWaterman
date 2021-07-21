@@ -276,16 +276,17 @@ def getMaxScore(score_matrix, row, col,match,mismatch,gap,seq_r,seq_c):
 	left = 0 if supp_oriz == [] else max(supp_oriz)
 	up = 0 if supp_vert == [] else max(supp_vert)
 
+
 	#simpler scoring schema, here I don't check if there is a cell in all the row or in all the column, i simply check the first after the current cell.
-
-	#diag = score_matrix[row-1][col-1]+similarity
-	#left = score_matrix[row][col-1]-gap
-	#up = score_matrix[row-1][col]-gap
-
+	'''
+	diag = score_matrix[row-1][col-1]+similarity
+	left = score_matrix[row][col-1]-gap
+	up = score_matrix[row-1][col]-gap
+	'''
 	return max(diag,left,up,0)
 
 
-def traceBack(score_matrix,max_pos,trace):
+def traceBack(score_matrix,max_pos,trace,gap):
 
 	'''function that implements the traceback, it returns the 
 	alignment given a starting position given by max_pos
