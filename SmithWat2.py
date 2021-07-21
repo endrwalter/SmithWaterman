@@ -141,7 +141,7 @@ def parseCmdLine():
 			"		+ max {H[i-k,j]-W(k)}, k>=1\n "
 			"		+ 0 					   \n "
 			"    Where W() is the gap score, and H is the scoring matrix that the procedure is filling up\n"
-			"  - Once the score matrix is created, the traceback procedure is launched iteratively to finding all the alignments\n"
+			"  - Once the score matrix is created, the traceback procedure is launched iteratively to find all the alignments\n"
 			" ============================================================================================================================",
 			formatter_class=RawTextHelpFormatter)
 
