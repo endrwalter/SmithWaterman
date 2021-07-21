@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
-'''Python implementation of Smith-Waterman algorithm for local alignment
+''' Walter Endrizzi
+	
+	Python implementation of Smith-Waterman algorithm for local alignment
 '''
 
 import argparse    	
 from argparse import RawTextHelpFormatter			#for creating a decent user-friendly menu
 import os
 import sys
-from copy import copy, deepcopy #used to preserve the score_matrix during the traceback procedure
-import re                       #regex
+from copy import copy, deepcopy 					#used to preserve the score_matrix during the traceback procedure
+import re                      						#regex
 
 
 
