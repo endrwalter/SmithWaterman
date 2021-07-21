@@ -72,6 +72,7 @@ def main():
 
 
 	while max_pos:
+		print(str(max_pos))
 		trace.append(max_pos)
 		trace, max_pos = traceBack(score_matrix,max_pos, trace)
 		if trace:
@@ -290,13 +291,14 @@ def traceBack(score_matrix,max_pos,trace):
 		max_pos = (i-1,j)
 		
 	#we discard a trace if it contains only one cell
-	#here I have to mantain also the first cell that is equal to zero
-	trace.append(max_pos)
+	#If I mymax==0 zero, then I am at the beginning of the alignment, I have to stop the recursion.
+	print(trace)
 	if mymax==0:
 		if len(trace) <= 1:
 			trace = None
 		return trace, max_pos
 	else:
+		trace.append(max_pos)
 		return traceBack(score_matrix,max_pos,trace)
 
 
