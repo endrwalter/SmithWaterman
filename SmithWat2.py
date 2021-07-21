@@ -76,7 +76,6 @@ def main():
 		trace, max_pos = traceBack(score_matrix,max_pos, trace, gap)
 		if trace:
 			all_traces.append(trace)
-			print(trace)
 			trace = []
 			max_pos, max_score = find_new_pos(all_traces,score_matrix,bool_override_tb)
 			all_scores.append(max_score)
@@ -105,6 +104,7 @@ def main():
 	if bool_save:
 		export_res(main_list,all_scores, min_length, min_score,bool_min_gap,seq_r,seq_c)
 		print(" Exporting results to 'result.txt'..")
+		print(" Use 'cat result.txt' to display all the alignments. ")
 	else:
 		print(" Results have not been exported.")
 
@@ -296,7 +296,7 @@ def getMaxScore(score_matrix, row, col,match,mismatch,gap,seq_r,seq_c):
 	return max(diag,left,up,0)
 
 
-def traceBack(score_matrix,max_pos,trace):
+def traceBack(score_matrix,max_pos,trace,gap):
 
 	'''function that implements the traceback, it returns the 
 	alignment given a starting position given by max_pos
@@ -318,7 +318,7 @@ def traceBack(score_matrix,max_pos,trace):
 	#here I have to add the gap penality to move laterally or vertically??????
 
 	diag = score_matrix[i-1][j-1]
-	up = score_matrix[i-1][j] -gap
+	up   = score_matrix[i-1][j] -gap
 	left = score_matrix[i][j-1] -gap
 	
 	
