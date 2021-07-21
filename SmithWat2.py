@@ -130,36 +130,49 @@ def parseCmdLine():
 			" Technical Info : \n"
 			"  - This procedure implements a simple scoring schema, the user has the possibility to modify the values related to \n"
 			"  		+ match score\n"
-			"		+ mismatch score\n"
-			"		+ gap penalty\n"
+			" 		+ mismatch score\n"
+			" 		+ gap penalty\n"
 			"  - Gap Score : the gap score (W()) is calulated using a simple formula, it is directly proportional to the number of gaps : gap_penalty * n_gaps \n"
 			"  - This scoring schema is then used to build the scoring matrix, by using the flag -d the user can print it on the terminal.\n"
 			"  - Each cell of the scoring matrix is filled up with the max value between :\n"
-			"		+ H[i-1,j-1]+S(a[i],b[j])\n"
-			"		+ max {H[i,j-l]-W(l)}, l>=1\n "
-			"		+ max {H[i-k,j]-W(k)}, k>=1\n "
-			"		+ 0 					   \n "
+			" 		+ H[i-1,j-1]+S(a[i],b[j])\n"
+			" 		+ max {H[i,j-l]-W(l)}, l>=1\n "
+			" 		+ max {H[i-k,j]-W(k)}, k>=1\n "
+			" 		+ 0 					   \n "
 			"    Where W() is the gap score, and H is the scoring matrix that the procedure is filling up\n"
 			"  - Once the score matrix is created, the traceback procedure is launched iteratively to find all the alignments\n"
 			"  - This procedure launched in standard mode (without flags) returns the best alignment with the score, the length,\n"
-			"    the number of gaps, the number of mismatches and the number of matches related to the alignment.\n"
-			" ============================================================================================================================",
+			"     the number of gaps, the number of mismatches and the number of matches related to the alignment.\n"
+			"  - In the printed alignment, | stands for mismatch, * stands for match and ' ' stands for a gap.\n"
+			"  - Formatted results equal to  http://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Smith-Waterman\n "
+			"============================================================================================================================\n",
 			formatter_class=RawTextHelpFormatter)
 
 
 	parser.add_argument("seq_c1", help=" Input sequence 1 (on the columns)")
 	parser.add_argument("seq_r2", help=" Input sequence 2 (on the rows)")
-	parser.add_argument("-f", "--save-to-file", action="store_true", help="Export all the alignments in a text file named 'result.txt'. Alignments are reported in an ordered way with respect to the score.\n"
-					"Note that if result.txt already exists it will be overwritten. If this flag is used, other optional arguments can be specified, see below.")
-	parser.add_argument("-d", "--display-scoring-matrix", action="store_true", help="Display the scoring matrix calculated by the algorithm using the scoring schema")
-	parser.add_argument("-o", "--override-in-traceback", action="store_true", help="Allow overlaps in trace-back paths, by default they are not allowed.")
-	parser.add_argument("-m", "--match" ,	 type = int, choices=[0,1,2,3,4,5,6,7,8,9], 		default = 3 ,help="Optional. set up the match score. (default = 3) ")
-	parser.add_argument("-s", "--mismatch" , type = int, choices=[-9,-8,-7,-6,-5,-4,-3,-2,-1,0], default =-1, help="Optional. set up the mismatch score. (default = -1) ")
-	parser.add_argument("-g", "--gap" ,		 type = int, choices=[0,1,2,3,4,5,6,7,8,9], 		default = 1, help="Optional. set up the gap score. (default = 1) ")
-	parser.add_argument("-ml", "--minimum-length", type = int, default = 1, help="Optional. Specify only if the '-f' option is used. If -ml is specified, only the alignments with (length > ml) will be saved and exported to the file result.txt")
-	parser.add_argument("-ms", "--minimum-score", type=int, default = 0, help="Optional. Specify only if the '-f' option is used. If -ms is specified, only the alignments with (score > ms) will be saved and exported to the file result.txt")
-	parser.add_argument("-mg", "--seq-with-min-number-of-gaps", action="store_true", help="Optional. If this flag is used, only the alignments (among all) with the minimum number of gaps are selected and saved to result.txt \n"
-						"It works if -f flag is used, you will find the result in the result.txt file")
+	parser.add_argument("-f", "--save-to-file", action="store_true", help= "Export all the alignments in a text file named 'result.txt'. Alignments are reported in an ordered way with respect to the score.\n"
+																		  "Note that if result.txt already exists it will be overwritten. If this flag is used, other optional arguments can be specified, see below.\n"
+																			  "   ")
+	parser.add_argument("-d", "--display-scoring-matrix", action="store_true", help="Display the scoring matrix calculated by the algorithm using the scoring schema\n"
+																			  "   ")
+	parser.add_argument("-o", "--override-in-traceback", action="store_true", help="Allow overlaps in trace-back paths, by default they are not allowed.\n"
+																			 	   "   ")
+	parser.add_argument("-m", "--match" ,	 type = int, choices=[0,1,2,3,4,5,6,7,8,9], 		default = 3 ,help="Optional. set up the match score. (default = 3) \n"
+																			  									  "   ")
+	parser.add_argument("-s", "--mismatch" , type = int, choices=[-9,-8,-7,-6,-5,-4,-3,-2,-1,0], default =-1, help="Optional. set up the mismatch score. (default = -1) \n"
+																			  										"   ")
+	parser.add_argument("-g", "--gap" ,		 type = int, choices=[0,1,2,3,4,5,6,7,8,9], 		default = 1, help="Optional. set up the gap score. (default = 1) \n"
+																			  									  "   ")
+	parser.add_argument("-ml", "--minimum-length", type = int, default = 1, help="Optional. Specify only if the '-f' option is used.\n"
+																				"If -ml is specified, only the alignments with (length > ml) will be saved and exported to the file result.txt\n"
+																			  "   ")
+	parser.add_argument("-ms", "--minimum-score", type=int, default = 0, help="Optional. Specify only if the '-f' option is used.\n" 
+																			  "If -ms is specified, only the alignments with (score > ms) will be saved and exported to the file result.txt\n"
+																			  "   ")
+	parser.add_argument("-mg", "--seq-with-min-number-of-gaps", action="store_true", help="Optional. If this flag is used, only the alignments with the minimum number of gaps are selected and saved to result.txt \n"
+						"It works if -f flag is used, you will find the result in the result.txt file\n"
+						" ")
 	
 
 	'''
