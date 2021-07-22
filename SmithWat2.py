@@ -20,7 +20,7 @@ def main():
 	
 	
 	seq_r, seq_c, bool_override_tb, match, mismatch, gap, bool_save, bool_display_mat, min_length, min_score, bool_min_gap = parseCmdLine()
-
+	print("")
 	print(" Options ")
 	print("------ ")
 	if (bool_display_mat) : print("+ Score matrix display")
