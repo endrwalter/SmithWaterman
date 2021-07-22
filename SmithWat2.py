@@ -69,20 +69,16 @@ def main():
 	
 	all_traces = []
 	trace = []
-	all_scores = []
 	
-	all_scores.append(max_score)
 
 
 	while max_pos:
 		trace.append(max_pos)
 		trace, max_pos = traceBack(score_matrix,max_pos, trace, gap)
 		if trace:
-			all_traces.append(trace)
+			all_traces.append([trace, max_score])
 			trace = []
 			max_pos, max_score = find_new_pos(all_traces,score_matrix,bool_override_tb)
-			all_scores.append(max_score)
-
 		else:
 			max_pos = None
 
@@ -92,42 +88,37 @@ def main():
 	'''Now given all the traces in the list all_traces I can return the 
 	real alignments with the characters:
 	main_list = [["ACTAG","A-TAC"],["ACGT","-ACG"],...["",""],..]
+	
 	'''
 	main_list = getAlignments(all_traces,seq_r,seq_c)
 
-	if (main_list == []):
-		print("No alignments found, please change the sequences")
-		sys.exit()
+	
+
+	'''Filtering the results'''
+	filtered_main_list = applyFilters(main_list, bool_min_gap, min_length, min_score, len(seq_r))
+	
 
 
 	'''multiple best alignments ? '''
 	i = 0
-	while all_scores[0] == all_scores[i]: i = i+1
+	while filtered_main_list[0][2] == filtered_main_list[i][2]: i = i+1
 
-	'''Print in terminal info of the best alignment
-	i = 0
-	while all_scores[0] == all_scores[i]: i = i+1
-		
-	if i > 1 :	
-		print(" Multiple best alignments found :")
+
 	
-
-	j=0
-	while j <= i :
-		print(" Alignment "+ str(j+1))
-		printInfo(main_list[j],all_scores[j])
-		j+=1
-
-	'''
-
-	print(" Best Alignment ")
-	printInfo(main_list[0],all_scores[0])
-	if i > 1 : print(" Multiple alignments found with the same maximum score.\n")
-
+	if i > 1 : 
+		print(" Multiple alignments found with the same maximum score : \n")
+		j = 0
+		while j < i:
+			print(" Alignment "+str(j+1))
+			printInfo(filtered_main_list[j],filtered_main_list[j][2])
+			j+=1
+	else:
+		print(" Best Alignment ")
+		printInfo(filtered_main_list[0],filtered_main_list[0][2])
 
 	'''Formatted print to result.txt '''
 	if bool_save:
-		export_res(main_list,all_scores, min_length, min_score,bool_min_gap,seq_r,seq_c)
+		export_res(filtered_main_list)
 		print(" Exporting results to 'result.txt'..")
 		print(" Use 'cat result.txt' to display all the alignments. ")
 	else:
@@ -403,7 +394,7 @@ def find_new_pos(all_traces, score_matrix, bool_override_tb):
 			score_matrix_sup[m][n]=0
 	else:
 		for l in all_traces:
-			for tup in l:
+			for tup in l[0]:
 				m,n = tup
 				score_matrix_sup[m][n]=0
 
@@ -437,7 +428,7 @@ def getAlignments(all_traces,seq_r,seq_c):
 		row_old = len(seq_r)+100
 		col_old = len(seq_c)+100
 
-		for tup in reversed(l):
+		for tup in reversed(l[0]):
 			row,col=tup
 			if (row == row_old):
 				supp_list_2=supp_list_2+'-'
@@ -452,9 +443,37 @@ def getAlignments(all_traces,seq_r,seq_c):
 			row_old = row
 			col_old = col
 		
-		main_list.append(([supp_list_1,supp_list_2])) 
+		main_list.append(([supp_list_1,supp_list_2,l[1]])) 
 
 	return main_list
+
+
+def applyFilters(main_list, bool_min_gap, min_length, min_score, max_gap):
+
+	filtered_main_list = []
+	mingap = max_gap
+
+	if bool_min_gap: #if specified by the user, I save only the alignment which have the minimum gap. (it can be = 0)
+		for alignment in main_list:
+			mingap = alignment[0].count('-')+alignment[1].count('-') if (alignment[0].count('-')+alignment[1].count('-')) < mingap else mingap
+
+
+	for alignment in main_list:
+		if (alignment[2] < min_score):	#save only the alignment which has a score greater than '-ms' (specified by user)
+			continue
+		if (len(alignment[1]) < min_length):	#save only alignment which has a length grater than 'ml' (specified by user)
+			continue
+		if (bool_min_gap and alignment[0].count('-')+alignment[1].count('-') > mingap):
+			continue
+		
+		filtered_main_list.append(alignment)
+
+
+	if (filtered_main_list == []):
+		print(" No alignments found, please change the sequences (or some parameters)")
+		sys.exit()
+
+	return filtered_main_list
 
 
 def printInfo(alignment, score_):
@@ -501,31 +520,15 @@ def printInfo(alignment, score_):
 	print("   ")
 
 
-def export_res(main_list,all_scores, min_length, min_score,bool_min_gap,seq_r,seq_c):
-
-	mingap = len(seq_r)
-
-	if bool_min_gap: #if specified by the user, I save only the alignment which have the minimum gap. (it can be = 0)
-		for alignment in main_list:
-			mingap = alignment[0].count('-')+alignment[1].count('-') if (alignment[0].count('-')+alignment[1].count('-')) < mingap else mingap
+def export_res(main_list):
 
 
 	original_stdout = sys.stdout
 	sys.stdout = open('result.txt', 'w')
 	i = 0
 	for alignment in main_list:
-		if (all_scores[i] < min_score):	#save only the alignment which has a score greater than '-ms' (specified by user)
-			break
-		if (len(alignment[1]) < min_length):	#save only alignment which has a length grater than 'ml' (specified by user)
-			i=i+1
-			continue
-		if (bool_min_gap):
-			if (alignment[0].count('-')+alignment[1].count('-') == mingap):
-				print(" Alignment number "+str(i+1))
-				printInfo(alignment, all_scores[i])
-		else:
-			print(" Alignment number "+str(i+1))
-			printInfo(alignment, all_scores[i])
+		print(" Alignment number "+str(i+1))
+		printInfo(alignment, alignment[2])
 		i=i+1
 
 	sys.stdout = original_stdout
