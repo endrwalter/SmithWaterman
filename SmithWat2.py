@@ -453,7 +453,7 @@ def getAlignments(all_traces,seq_r,seq_c):
 
 
 def applyFilters(main_list, bool_min_gap, min_length, min_score, max_gap):
-	print(" Filtering the alignment..")
+	print(" Filtering the alignments..")
 	print(" ")
 	filtered_main_list = []
 	mingap = max_gap
