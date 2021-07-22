@@ -64,8 +64,8 @@ def main():
 	until you reach a score of zero'''
 
 	'''Here i iterate until there is not a maximum in the score_matrix
-	at each iteration the traceback function getBestAlignment is 
-	run recursively '''
+	at each iteration the traceback function is 
+	run in a recursive way '''
 	
 	all_traces = []
 	trace = []
@@ -87,7 +87,7 @@ def main():
 
 	'''Now given all the traces in the list all_traces I can return the 
 	real alignments with the characters:
-	main_list = [["ACTAG","A-TAC"],["ACGT","-ACG"],...["",""],..]
+	main_list = [["ACTAG","A-TAC",score],["ACGT","-ACG",score],...["","",score],..]
 	
 	'''
 	main_list = getAlignments(all_traces,seq_r,seq_c)
@@ -95,7 +95,7 @@ def main():
 	
 
 	'''Filtering the results'''
-	filtered_main_list = applyFilters(main_list, bool_min_gap, min_length, min_score, len(seq_r))
+	filtered_main_list = applyFilters(main_list, bool_min_gap, min_length, min_score, len(seq_r)) if bool_min_gap or min_length > 1 or min_score > 0 else main_list
 	
 
 
@@ -453,7 +453,8 @@ def getAlignments(all_traces,seq_r,seq_c):
 
 
 def applyFilters(main_list, bool_min_gap, min_length, min_score, max_gap):
-
+	print(" Filtering the alignment..")
+	print(" ")
 	filtered_main_list = []
 	mingap = max_gap
 
