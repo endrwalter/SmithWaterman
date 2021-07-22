@@ -101,7 +101,12 @@ def main():
 
 	'''multiple best alignments ? '''
 	i = 0
-	while filtered_main_list[0][2] == filtered_main_list[i][2]: i = i+1
+	for al in filtered_main_list:
+		if filtered_main_list[0][2] == al[2]: 
+			i = i +1 
+		else: 
+			break
+	
 
 
 	
@@ -140,7 +145,7 @@ def parseCmdLine():
 			description=
 			" ===================================== Smith Waterman Algorithm Implementation ==============================================\n"
 			" This algorithm works only with nucleotide sequences. Only A,G,C,T characters are allowed.\n"
-			" It directly returns on terminal the best alignment between the two inserted sequences.\n"
+			" It directly returns on terminal the best alignments between the two inserted sequences.\n"
 			" Optionally it can save on a text file all the other alignments between the two sequences. (see the options below)\n"
 			" -----------------------\n"
 			" Technical Info : \n"
@@ -156,9 +161,9 @@ def parseCmdLine():
 			" 		+ max {H[i-k,j]-W(k)}, k>=1\n "
 			" 		+ 0 					   \n "
 			"    Where W() is the gap score, and H is the scoring matrix that the procedure is filling up\n"
-			"  - Once the score matrix is created, the traceback procedure is launched iteratively to find all the alignments\n"
-			"  - This procedure launched in standard mode (without flags) returns the best alignment with the score, the length,\n"
-			"     the number of gaps, the number of mismatches and the number of matches related to the alignment.\n"
+			"  - Once the score matrix is created, the traceback procedure is used to find all the alignments\n"
+			"  - If this procedure is launched in standard mode (without flags), it returns the best alignment(s) with the score, the length,\n"
+			"     the number of gaps, the number of mismatches and the number of matches.\n"
 			"  - In the printed alignment, | stands for mismatch, * stands for match and ' ' stands for a gap.\n"
 			"  - Formatted results equal to  http://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Smith-Waterman\n "
 			"============================================================================================================================\n",
@@ -168,7 +173,7 @@ def parseCmdLine():
 	parser.add_argument("seq_c1", help=" Input sequence 1 (on the columns)")
 	parser.add_argument("seq_r2", help=" Input sequence 2 (on the rows)")
 	parser.add_argument("-f", "--save-to-file", action="store_true", help= "Export all the alignments in a text file named 'result.txt'. Alignments are reported in an ordered way with respect to the score.\n"
-																		  "Note that if result.txt already exists it will be overwritten. If this flag is used, other optional arguments can be specified, see below.\n"
+																		  "Note that if result.txt already exists it will be overwritten. Use this flag if you want information about all the alignments (not only the best).\n"
 																			  "   ")
 	parser.add_argument("-d", "--display-scoring-matrix", action="store_true", help="Display the scoring matrix calculated by the algorithm using the scoring schema\n"
 																			  "   ")
@@ -180,15 +185,12 @@ def parseCmdLine():
 																			  										"   ")
 	parser.add_argument("-g", "--gap" ,		 type = int, choices=[0,1,2,3,4,5,6,7,8,9], 		default = 1, help="Optional. set up the gap score. (default = 1) \n"
 																			  									  "   ")
-	parser.add_argument("-ml", "--minimum-length", type = int, default = 1, help="Optional. Specify only if the '-f' option is used.\n"
-																				"If -ml is specified, only the alignments with (length > ml) will be saved and exported to the file result.txt\n"
+	parser.add_argument("-ml", "--minimum-length", type = int, default = 1, help="Optional. If -ml is specified, only the alignments with (length > ml) will be printed (or exported if -f is used)\n"
 																			  "   ")
-	parser.add_argument("-ms", "--minimum-score", type=int, default = 0, help="Optional. Specify only if the '-f' option is used.\n" 
-																			  "If -ms is specified, only the alignments with (score > ms) will be saved and exported to the file result.txt\n"
+	parser.add_argument("-ms", "--minimum-score", type=int, default = 0, help="Optional. If -ms is specified, only the alignments with (score > ms) will be printed (and exported to the file result.txt if -f is used)\n"
 																			  "   ")
-	parser.add_argument("-mg", "--seq-with-min-number-of-gaps", action="store_true", help="Optional. If this flag is used, only the alignments with the minimum number of gaps are selected and saved to result.txt \n"
-						"It works if -f flag is used, you will find the result in the result.txt file\n"
-						" ")
+	parser.add_argument("-mg", "--seq-with-min-number-of-gaps", action="store_true", help="Optional. If this flag is used, only the alignments with the minimum number of gaps are selected and printed (or exported if -f is used). \n"
+																				" ")
 	
 
 	'''
@@ -384,12 +386,14 @@ def find_new_pos(all_traces, score_matrix, bool_override_tb):
 
 	'''allow override in traceback, I remove from the scoring matrix 
 	only the starting points of the paths already found.
+	
 	If not allowed I remove from the scoring matrix also all the traces
 	already found.
 	'''
+
 	if bool_override_tb :
 		for l in all_traces:
-			tup = l[0]
+			tup = l[0][0]
 			m,n= tup
 			score_matrix_sup[m][n]=0
 	else:
