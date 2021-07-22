@@ -99,9 +99,31 @@ def main():
 		print("No alignments found, please change the sequences")
 		sys.exit()
 
-	'''Print in terminal info of the best alignment'''
-	print(" Best alignment")
+
+	'''multiple best alignments ? '''
+	i = 0
+	while all_scores[0] == all_scores[i]: i = i+1
+
+	'''Print in terminal info of the best alignment
+	i = 0
+	while all_scores[0] == all_scores[i]: i = i+1
+		
+	if i > 1 :	
+		print(" Multiple best alignments found :")
+	
+
+	j=0
+	while j <= i :
+		print(" Alignment "+ str(j+1))
+		printInfo(main_list[j],all_scores[j])
+		j+=1
+
+	'''
+
+	print(" Best Alignment ")
 	printInfo(main_list[0],all_scores[0])
+	if i > 1 : print(" Multiple alignments found with the same maximum score.\n")
+
 
 	'''Formatted print to result.txt '''
 	if bool_save:
@@ -110,6 +132,8 @@ def main():
 		print(" Use 'cat result.txt' to display all the alignments. ")
 	else:
 		print(" Results have not been exported.")
+		if i > 1 : print(" Please use the flag '-f' to save the result and see all the other alignments.\n")
+		
 
 	print(" Done.")
 	
@@ -276,7 +300,7 @@ def getMaxScore(score_matrix, row, col,match,mismatch,gap,seq_r,seq_c):
 
 	supp_oriz = []
 	supp_vert = []
-
+	
 	#here i iterate from m = 1 until m = col-1.
 	for m in range(1,col):
 		supp_oriz.append(score_matrix[row][m]-gap*(col-m))
@@ -289,13 +313,16 @@ def getMaxScore(score_matrix, row, col,match,mismatch,gap,seq_r,seq_c):
 	diag = score_matrix[row-1][col-1]+similarity
 	left = 0 if supp_oriz == [] else max(supp_oriz)
 	up = 0 if supp_vert == [] else max(supp_vert)
-
+	
 	#simpler scoring schema, here I don't check if there is a cell in all the row or in all the column, i simply check the first after the current cell.
+	'''
+	similarity =  match if seq_c[col-1] == seq_r[row-1] else mismatch
 
-	#diag = score_matrix[row-1][col-1]+similarity
-	#left = score_matrix[row][col-1]-gap
-	#up = score_matrix[row-1][col]-gap
 
+	diag = score_matrix[row-1][col-1]+similarity
+	left = score_matrix[row][col-1]-gap
+	up = score_matrix[row-1][col]-gap
+	'''
 	return max(diag,left,up,0)
 
 
@@ -318,11 +345,11 @@ def traceBack(score_matrix,max_pos,trace,gap):
 	
 	i,j=max_pos
 		
-	#here I have to add the gap penality to move laterally or vertically??????
+	#here I have to add the gap penality to move laterally or vertically?????? if y, same result as expected
 
-	diag = score_matrix[i-1][j-1]
-	up   = score_matrix[i-1][j] -gap
-	left = score_matrix[i][j-1] -gap
+	diag = score_matrix[i-1][j-1] 
+	up   = score_matrix[i-1][j] #-gap
+	left = score_matrix[i][j-1] #-gap
 	
 	
 	#select the best cell in the matrix for the current trace using the score_matrix
@@ -407,8 +434,8 @@ def getAlignments(all_traces,seq_r,seq_c):
 	for l in all_traces:
 		supp_list_1 = ""
 		supp_list_2 = ""
-		row_old = len(seq_r)+10
-		col_old = len(seq_c)+10
+		row_old = len(seq_r)+100
+		col_old = len(seq_c)+100
 
 		for tup in reversed(l):
 			row,col=tup
