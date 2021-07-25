@@ -15,7 +15,6 @@ import re                      						#regex
 
 
 
-
 def main():
 	
 	
@@ -81,7 +80,6 @@ def main():
 			max_pos, max_score = find_new_pos(all_traces,score_matrix,bool_override_tb)
 		else:
 			max_pos = None
-
 
 
 
@@ -429,26 +427,32 @@ def getAlignments(all_traces,seq_r,seq_c):
 	for l in all_traces:
 		supp_list_1 = ""
 		supp_list_2 = ""
-		row_old = len(seq_r)+100
-		col_old = len(seq_c)+100
+		row_old = 1000
+		col_old = 1000
 
-		for tup in reversed(l[0]):
+		#print(l)
+		for tup in (l[0]):
+
 			row,col=tup
+			print(str(row)+"  old: "+str(row_old))
+			print(str(col)+ " old: "+str(col_old))
 			if (row == row_old):
-				supp_list_2=supp_list_2+'-'
+				supp_list_2='-' + supp_list_2
 			else:
-				supp_list_2= supp_list_2 + seq_r[row-1]
+				supp_list_2=  seq_r[row-1] +supp_list_2
 
 			if (col == col_old):
-				supp_list_1= supp_list_1 +'-'
+				supp_list_1= '-' + supp_list_1 
 			else:
-				supp_list_1= supp_list_1 + seq_c[col-1]
+				supp_list_1= seq_c[col-1] + supp_list_1 
 
+			#print(supp_list_2)
+			#print(supp_list_1)
 			row_old = row
 			col_old = col
 		
 		main_list.append(([supp_list_1,supp_list_2,l[1]])) 
-
+	
 	return main_list
 
 
