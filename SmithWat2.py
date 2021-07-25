@@ -86,7 +86,7 @@ def main():
 
 
 	'''Now given all the traces in the list all_traces I can return the 
-	real alignments with the characters:
+	real alignments with the characters and the relative scores:
 	main_list = [["ACTAG","A-TAC",score],["ACGT","-ACG",score],...["","",score],..]
 	
 	'''
