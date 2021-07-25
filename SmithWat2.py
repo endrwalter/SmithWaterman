@@ -248,7 +248,7 @@ def generateScoreMatrix(seq_r,seq_c,match,mismatch,gap):
 			score = getMaxScore(score_matrix,i,j,match,mismatch,gap,seq_r,seq_c)
 			score_matrix[i][j]=score
 
-			if (score>max_score):
+			if (score>=max_score):
 				max_score = score
 				max_pos = (i,j)
 
@@ -333,7 +333,7 @@ def traceBack(score_matrix,max_pos,trace,gap, match, mismatch, seq_c, seq_r):
     I append the first position of the trace before the call to traceback
     Here below I define i,j that take the position of the current cell from which i will find the next best position
     '''
-	print(max_pos)
+	
 	i,j=max_pos
 		
 	#here I have to add the gap penality to move laterally or vertically?????? if y, same result as expected
@@ -407,7 +407,7 @@ def find_new_pos(all_traces, score_matrix, bool_override_tb):
 
 	for i in range(len(score_matrix_sup)):
 		for j in range(len(score_matrix_sup[i])):
-			if score_matrix_sup[i][j] > new_max:
+			if score_matrix_sup[i][j] >= new_max:
 				new_max = score_matrix_sup[i][j]
 				new_pos = (i,j)
 
@@ -432,12 +432,12 @@ def getAlignments(all_traces,seq_r,seq_c):
 		row_old = 1000
 		col_old = 1000
 
-		print(l)
+		#print(l)
 		for tup in (reversed(l[0])):
 
 			row,col=tup
-			print(str(row)+"  old: "+str(row_old))
-			print(str(col)+ " old: "+str(col_old))
+			#print(str(row)+"  old: "+str(row_old))
+			#print(str(col)+ " old: "+str(col_old))
 			if (row == row_old):
 				supp_list_2= supp_list_2 + '-' 
 			else:
@@ -448,8 +448,8 @@ def getAlignments(all_traces,seq_r,seq_c):
 			else:
 				supp_list_1=  supp_list_1 +seq_c[col-1] 
 
-			print(supp_list_2)
-			print(supp_list_1)
+			#print(supp_list_2)
+			#print(supp_list_1)
 			row_old = row
 			col_old = col
 		
