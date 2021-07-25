@@ -232,11 +232,6 @@ def parseCmdLine():
 	
 
 def generateScoreMatrix(seq_r,seq_c,match,mismatch,gap):
-
-	'''Fill the scoring matrix iteratively (see getMaxScore)
-	cols = number of char of seq_c1
-	rows = number of char of seq_r2
-	'''
 	
 	cols, rows, score_matrix = initScoreMatrix(seq_r,seq_c)
 
@@ -257,7 +252,6 @@ def generateScoreMatrix(seq_r,seq_c,match,mismatch,gap):
 
 
 def initScoreMatrix(seq_r,seq_c):
-	'''function that initialize the score_matrix '''
 
 	'''The scoring matrix has dimension [1+length_seqa][1+length_seqb]
 		all the element in the first row and columns are 0'''
@@ -343,7 +337,6 @@ def traceBack(score_matrix,max_pos,trace,gap, match, mismatch, seq_c, seq_r):
 	left = score_matrix[i][j-1] -gap
 	
 	
-	#select the best cell in the matrix for the current trace using the score_matrix
 	mymax = max(diag,up,left)
 
 	#computing the new position in the matrix that will be saved 
