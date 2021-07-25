@@ -2,6 +2,7 @@
 Smith Waterman Algorithm for multiple sequence alignment
 
  ===================================== Smith Waterman Algorithm Implementation ==============================================
+ 
 	 This algorithm works only with nucleotide sequences. Only A,G,C,T characters are allowed.
 	 It directly returns on terminal the best alignments between the two inserted sequences.
 	 Optionally it can save on a text file all the other alignments between the two sequences. (see the options below)
@@ -24,4 +25,5 @@ Smith Waterman Algorithm for multiple sequence alignment
 	     the number of gaps, the number of mismatches and the number of matches.
 	  - In the printed alignment, | stands for mismatch, * stands for match and ' ' stands for a gap.
 	  - Formatted results equal to  http://rna.informatik.uni-freiburg.de/Teaching/index.jsp?toolName=Smith-Waterman
+	  
 	============================================================================================================================,
