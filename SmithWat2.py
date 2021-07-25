@@ -73,7 +73,7 @@ def main():
 
 	while max_pos:
 		trace.append(max_pos)
-		trace, max_pos = traceBack(score_matrix,max_pos, trace, gap)
+		trace, max_pos = traceBack(score_matrix,max_pos, trace, gap, match, mismatch, seq_c, seq_r)
 		if trace:
 			all_traces.append([trace, max_score])
 			trace = []
@@ -317,7 +317,7 @@ def getMaxScore(score_matrix, row, col,match,mismatch,gap,seq_r,seq_c):
 	return max(diag,left,up,0)
 
 
-def traceBack(score_matrix,max_pos,trace,gap):
+def traceBack(score_matrix,max_pos,trace,gap, match, mismatch, seq_c, seq_r):
 
 	'''function that implements the traceback, it returns the 
 	alignment given a starting position given by max_pos
@@ -333,14 +333,14 @@ def traceBack(score_matrix,max_pos,trace,gap):
     I append the first position of the trace before the call to traceback
     Here below I define i,j that take the position of the current cell from which i will find the next best position
     '''
-	
+	print(max_pos)
 	i,j=max_pos
 		
 	#here I have to add the gap penality to move laterally or vertically?????? if y, same result as expected
-
-	diag = score_matrix[i-1][j-1] 
-	up   = score_matrix[i-1][j] #-gap
-	left = score_matrix[i][j-1] #-gap
+	similarity =  match if seq_c[j-1] == seq_r[i-1] else mismatch
+	diag = score_matrix[i-1][j-1] + similarity 
+	up   = score_matrix[i-1][j] -gap
+	left = score_matrix[i][j-1] -gap
 	
 	
 	#select the best cell in the matrix for the current trace using the score_matrix
@@ -353,16 +353,18 @@ def traceBack(score_matrix,max_pos,trace,gap):
 		max_pos = (i,j-1)
 	else:
 		max_pos = (i-1,j)
+
+	i,j=max_pos
 		
 	#we discard a trace if it contains only one cell
 	#If I mymax==0 zero, then I am at the beginning of the alignment, I have to stop the recursion.
-	if mymax==0:
+	if score_matrix[i][j] == 0:
 		if len(trace) <= 1:
 			trace = None
 		return trace, max_pos
 	else:
 		trace.append(max_pos)
-		return traceBack(score_matrix,max_pos,trace, gap)
+		return traceBack(score_matrix,max_pos,trace, gap, match, mismatch, seq_c, seq_r)
 
 
 def find_new_pos(all_traces, score_matrix, bool_override_tb):
@@ -430,24 +432,24 @@ def getAlignments(all_traces,seq_r,seq_c):
 		row_old = 1000
 		col_old = 1000
 
-		#print(l)
-		for tup in (l[0]):
+		print(l)
+		for tup in (reversed(l[0])):
 
 			row,col=tup
 			print(str(row)+"  old: "+str(row_old))
 			print(str(col)+ " old: "+str(col_old))
 			if (row == row_old):
-				supp_list_2='-' + supp_list_2
+				supp_list_2= supp_list_2 + '-' 
 			else:
-				supp_list_2=  seq_r[row-1] +supp_list_2
+				supp_list_2= supp_list_2 + seq_r[row-1]
 
 			if (col == col_old):
-				supp_list_1= '-' + supp_list_1 
+				supp_list_1=  supp_list_1 + '-'
 			else:
-				supp_list_1= seq_c[col-1] + supp_list_1 
+				supp_list_1=  supp_list_1 +seq_c[col-1] 
 
-			#print(supp_list_2)
-			#print(supp_list_1)
+			print(supp_list_2)
+			print(supp_list_1)
 			row_old = row
 			col_old = col
 		
